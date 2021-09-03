@@ -1,0 +1,5 @@
+#+TITLE: Todo
+
+* What needs to be done
+** [X] Create busy schedule with timings
+** [ ] Merge schedules together
