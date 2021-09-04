@@ -2,4 +2,5 @@
 
 * What needs to be done
 ** [X] Create busy schedule with timings
-** [ ] Merge schedules together
+** [X] Merge schedules together
+** [ ] Start time should be less then end time

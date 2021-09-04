@@ -106,6 +106,22 @@ func TestMergeRanges(t *testing.T) {
 				{"15:00", "19:00"},
 			},
 		},
+		{
+			"separate time, added not in order, overlapping",
+			[][2]string{
+				{"20:00", "22:00"},
+				{"15:00", "18:00"},
+				{"09:00", "12:00"},
+				{"16:00", "19:00"},
+				{"14:00", "18:00"},
+			},
+			3,
+			[][2]string{
+				{"09:00", "12:00"},
+				{"14:00", "19:00"},
+				{"20:00", "22:00"},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -116,6 +132,9 @@ func TestMergeRanges(t *testing.T) {
 				s, _ = s.AddRange(args[0], args[1])
 			}
 			t.Logf("times added: %v", tt.times)
+			for _, r := range s {
+				t.Logf("times in Schedule: %v - %v", r.Start(), r.End())
+			}
 
 			assertSameLength(t, tt.wantLength, len(s))
 
@@ -125,6 +144,18 @@ func TestMergeRanges(t *testing.T) {
 				assertSameString(t, ts[1], r.End(), "want range end %q, got %q")
 			}
 		})
+	}
+}
+
+func TestRangeStartLessThanEnd(t *testing.T) {
+	_, err := scheduler.NewSchedule().AddRange("14:00", "09:00")
+	if err == nil {
+		t.Errorf("expect error, because given start time is greater than end time, got %v", err)
+	}
+
+	_, err = scheduler.NewSchedule().AddRange("14:00", "14:00")
+	if err == nil {
+		t.Errorf("expect error, because given start time is equal to end time, got %v", err)
 	}
 }
 

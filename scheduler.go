@@ -1,11 +1,15 @@
 package scheduler
 
-import "time"
+import (
+	"fmt"
+	"sort"
+	"time"
+)
 
 type Schedule []Range
 
 type Range struct {
-	start, end string
+	start, end time.Time
 }
 
 func NewSchedule() Schedule {
@@ -13,47 +17,46 @@ func NewSchedule() Schedule {
 }
 
 func (s Schedule) AddRange(start, end string) (Schedule, error) {
+	startTime, err := time.Parse("15:04", start)
+	if err != nil {
+		return s, err
+	}
+	endTime, err := time.Parse("15:04", end)
+	if err != nil {
+		return s, err
+	}
+
+	if !startTime.Before(endTime) {
+		return s, fmt.Errorf("scheduler: want new range start time less than end time, got AddRange(%q, %q)", start, end)
+	}
+
+	newRange := Range{startTime, endTime}
 	newS := NewSchedule()
-	newRange := Range{start, end}
-	var err error
 
 	if l := len(s); l > 0 {
 		for _, r := range s {
-			rStart, err := time.Parse("15:04", r.start)
-			if err != nil {
-				return s, err
-			}
-			rEnd, err := time.Parse("15:04", r.end)
-			if err != nil {
-				return s, err
-			}
-			newStart, err := time.Parse("15:04", newRange.start)
-			if err != nil {
-				return s, err
-			}
-			newEnd, err := time.Parse("15:04", newRange.end)
-			if err != nil {
-				return s, err
-			}
-
-			if rStart.Before(newStart) && rEnd.Before(newStart) || rStart.After(newEnd) && rEnd.After(newEnd) {
-				newS = append(newS, r)
-			} else if rStart.Before(newStart) && (rEnd.After(newStart) || rEnd.Equal((newStart))) {
+			switch {
+			case r.start.Before(newRange.start) && (r.end.After(newRange.start) || r.end.Equal((newRange.start))):
 				newRange.start = r.start
-			} else if rEnd.After(newEnd) && (rStart.Before(newEnd) || rStart.Equal(newEnd)) {
+			case r.end.After(newRange.end) && (r.start.Before(newRange.end) || r.start.Equal(newRange.end)):
 				newRange.end = r.end
+			default:
+				newS = append(newS, r)
 			}
 		}
 	}
 	newS = append(newS, newRange)
 
+	sort.Slice(newS, func(i, j int) bool {
+		return newS[i].start.Before(newS[j].start)
+	})
 	return newS, err
 }
 
 func (r Range) Start() string {
-	return r.start
+	return r.start.Format("15:04")
 }
 
 func (r Range) End() string {
-	return r.end
+	return r.end.Format("15:04")
 }
