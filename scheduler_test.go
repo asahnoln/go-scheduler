@@ -6,36 +6,11 @@ import (
 	"github.com/asahnoln/go-scheduler"
 )
 
-func TestCreateSchedule(t *testing.T) {
-	s := scheduler.NewSchedule()
-	s, err := s.AddRange("09:00", "12:00")
-	assertNoError(t, err, "unexpected error while adding range: %v")
-
-	assertSameLength(t, 1, len(s))
-
-	r := s[0]
-	assertSameString(t, "09:00", r.Start(), "want range start time %q, got %q")
-	assertSameString(t, "12:00", r.End(), "want range end time %q, got %q")
-}
-
-func TestAddMoreRanges(t *testing.T) {
-	s := scheduler.NewSchedule()
-	s, _ = s.AddRange("09:00", "12:00")
-	s, _ = s.AddRange("15:00", "18:00")
-
-	assertSameLength(t, 2, len(s))
-
-	r := s[1]
-	assertSameString(t, "15:00", r.Start(), "want range start time %q, got %q")
-	assertSameString(t, "18:00", r.End(), "want range end time %q, got %q")
-}
-
 func TestMergeRanges(t *testing.T) {
 	tests := []struct {
-		name       string
-		times      [][2]string
-		wantLength int
-		wantTimes  [][2]string
+		name      string
+		times     [][2]string
+		wantTimes [][2]string
 	}{
 		{
 			"in order, separate times",
@@ -43,7 +18,6 @@ func TestMergeRanges(t *testing.T) {
 				{"09:00", "12:00"},
 				{"18:00", "20:00"},
 			},
-			2,
 			[][2]string{
 				{"09:00", "12:00"},
 				{"18:00", "20:00"},
@@ -55,7 +29,6 @@ func TestMergeRanges(t *testing.T) {
 				{"09:00", "12:00"},
 				{"11:00", "14:00"},
 			},
-			1,
 			[][2]string{
 				{"09:00", "14:00"},
 			},
@@ -66,7 +39,6 @@ func TestMergeRanges(t *testing.T) {
 				{"11:00", "14:00"},
 				{"09:00", "12:00"},
 			},
-			1,
 			[][2]string{
 				{"09:00", "14:00"},
 			},
@@ -77,7 +49,6 @@ func TestMergeRanges(t *testing.T) {
 				{"09:00", "12:00"},
 				{"12:00", "14:00"},
 			},
-			1,
 			[][2]string{
 				{"09:00", "14:00"},
 			},
@@ -88,7 +59,6 @@ func TestMergeRanges(t *testing.T) {
 				{"12:00", "14:00"},
 				{"09:00", "12:00"},
 			},
-			1,
 			[][2]string{
 				{"09:00", "14:00"},
 			},
@@ -100,26 +70,25 @@ func TestMergeRanges(t *testing.T) {
 				{"15:00", "18:00"},
 				{"16:00", "19:00"},
 			},
-			2,
 			[][2]string{
 				{"09:00", "12:00"},
 				{"15:00", "19:00"},
 			},
 		},
 		{
-			"separate time, added not in order, overlapping",
+			"separate time, added not in order, overlapping and touching",
 			[][2]string{
-				{"20:00", "22:00"},
-				{"15:00", "18:00"},
-				{"09:00", "12:00"},
-				{"16:00", "19:00"},
-				{"14:00", "18:00"},
+				{"20:00", "22:00"}, // touches 22:00
+				{"15:00", "18:00"}, // overlaps 16:00
+				{"09:00", "12:00"}, // separate
+				{"16:00", "19:00"}, // overlaps 18:00
+				{"14:00", "18:00"}, // overlaps 15:00
+				{"22:00", "23:00"}, // touches 22:00
 			},
-			3,
 			[][2]string{
 				{"09:00", "12:00"},
 				{"14:00", "19:00"},
-				{"20:00", "22:00"},
+				{"20:00", "23:00"},
 			},
 		},
 	}
@@ -136,7 +105,7 @@ func TestMergeRanges(t *testing.T) {
 				t.Logf("times in Schedule: %v - %v", r.Start(), r.End())
 			}
 
-			assertSameLength(t, tt.wantLength, len(s))
+			assertSameLength(t, len(tt.wantTimes), len(s))
 
 			for i, ts := range tt.wantTimes {
 				r := s[i]
@@ -147,15 +116,28 @@ func TestMergeRanges(t *testing.T) {
 	}
 }
 
+// TODO: Assert Error objects
 func TestRangeStartLessThanEnd(t *testing.T) {
 	_, err := scheduler.NewSchedule().AddRange("14:00", "09:00")
-	if err == nil {
-		t.Errorf("expect error, because given start time is greater than end time, got %v", err)
-	}
+	assertError(t, err, "expect error, because given start time is greater than end time, got %v")
 
 	_, err = scheduler.NewSchedule().AddRange("14:00", "14:00")
+	assertError(t, err, "expect error, because given start time is equal to end time, got %v")
+}
+
+// TODO: Think on optimization
+func BenchmarkMerging(b *testing.B) {
+	s := scheduler.NewSchedule()
+	for i := 0; i < b.N; i++ {
+		s, _ = s.AddRange("09:00", "14:00")
+	}
+}
+
+func assertError(t testing.TB, err error, message string) {
+	t.Helper()
+
 	if err == nil {
-		t.Errorf("expect error, because given start time is equal to end time, got %v", err)
+		t.Fatalf(message, err)
 	}
 }
 
