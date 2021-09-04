@@ -13,8 +13,7 @@ func TestMergeRanges(t *testing.T) {
 		times     [][2]string
 		wantTimes [][2]string
 	}{
-		{
-			"in order, separate times",
+		{"in order, separate times",
 			[][2]string{
 				{"09:00", "12:00"},
 				{"18:00", "20:00"},
@@ -22,50 +21,40 @@ func TestMergeRanges(t *testing.T) {
 			[][2]string{
 				{"09:00", "12:00"},
 				{"18:00", "20:00"},
-			},
-		},
-		{
-			"added in order, overlapping ending and beginning",
+			}},
+		{"added in order, overlapping ending and beginning",
 			[][2]string{
 				{"09:00", "12:00"},
 				{"11:00", "14:00"},
 			},
 			[][2]string{
 				{"09:00", "14:00"},
-			},
-		},
-		{
-			"reverse order, overlapping beginning and ending",
+			}},
+		{"reverse order, overlapping beginning and ending",
 			[][2]string{
 				{"11:00", "14:00"},
 				{"09:00", "12:00"},
 			},
 			[][2]string{
 				{"09:00", "14:00"},
-			},
-		},
-		{
-			"in order, touching ending and beginning",
+			}},
+		{"in order, touching ending and beginning",
 			[][2]string{
 				{"09:00", "12:00"},
 				{"12:00", "14:00"},
 			},
 			[][2]string{
 				{"09:00", "14:00"},
-			},
-		},
-		{
-			"reverse order, touching beginning and ending",
+			}},
+		{"reverse order, touching beginning and ending",
 			[][2]string{
 				{"12:00", "14:00"},
 				{"09:00", "12:00"},
 			},
 			[][2]string{
 				{"09:00", "14:00"},
-			},
-		},
-		{
-			"separate time, added in order, overlapping",
+			}},
+		{"separate time, added in order, overlapping",
 			[][2]string{
 				{"09:00", "12:00"},
 				{"15:00", "18:00"},
@@ -74,40 +63,32 @@ func TestMergeRanges(t *testing.T) {
 			[][2]string{
 				{"09:00", "12:00"},
 				{"15:00", "19:00"},
-			},
-		},
-		{
-			"time inside time",
+			}},
+		{"time inside time",
 			[][2]string{
 				{"09:00", "14:00"},
 				{"11:00", "12:00"},
 			},
 			[][2]string{
 				{"09:00", "14:00"},
-			},
-		},
-		{
-			"time outside time",
+			}},
+		{"time outside time",
 			[][2]string{
 				{"11:30", "12:30"},
 				{"09:55", "14:55"},
 			},
 			[][2]string{
 				{"09:55", "14:55"},
-			},
-		},
-		{
-			"time equal time",
+			}},
+		{"time equal time",
 			[][2]string{
 				{"11:15", "12:15"},
 				{"11:15", "12:15"},
 			},
 			[][2]string{
 				{"11:15", "12:15"},
-			},
-		},
-		{
-			"separate time, added not in order, overlapping and touching",
+			}},
+		{"separate time, added not in order, overlapping and touching",
 			[][2]string{
 				{"20:00", "22:00"}, // touches 22:00
 				{"15:00", "18:00"}, // overlaps 16:00
@@ -120,8 +101,7 @@ func TestMergeRanges(t *testing.T) {
 				{"09:00", "12:00"},
 				{"14:00", "19:00"},
 				{"20:00", "23:00"},
-			},
-		},
+			}},
 	}
 
 	for _, tt := range tests {
