@@ -7,7 +7,7 @@ import (
 )
 
 // layoutTime is common time format for parsing given range strings to time.Time
-const layoutTime = "15:04"
+const LayoutTime = "15:04"
 
 // Schedule is a slice of ranges
 type Schedule []Range
@@ -48,7 +48,7 @@ func (s Schedule) Add(start, end string) (Schedule, error) {
 func (s Schedule) AddRange(r Range) Schedule {
 	s = s.merge(r)
 	sort.Slice(s, func(i, j int) bool {
-		return s[i].start.Before(s[j].start)
+		return s[i].Start.Before(s[j].Start)
 	})
 
 	return s
@@ -67,10 +67,15 @@ func (s Schedule) merge(r Range) Schedule {
 	if l := len(s); l > 0 {
 		for _, p := range s {
 			switch {
-			case p.start.Before(r.start) && (p.end.After(r.start) || p.end.Equal((r.start))):
-				r.start = p.start
-			case p.end.After(r.end) && (p.start.Before(r.end) || p.start.Equal(r.end)):
-				r.end = p.end
+			case p.Start.Before(r.Start) && p.End.After(r.End):
+				r.Start = p.Start
+				r.End = p.End
+			case p.Start.After(r.Start) && p.End.Before(r.End):
+			case p.Start.Equal(r.Start) && p.End.Equal(r.End):
+			case p.Start.Before(r.Start) && (p.End.After(r.Start) || p.End.Equal((r.Start))):
+				r.Start = p.Start
+			case p.End.After(r.End) && (p.Start.Before(r.End) || p.Start.Equal(r.End)):
+				r.End = p.End
 			default:
 				newS = append(newS, p)
 			}
@@ -86,12 +91,12 @@ func parseTimes(start, end string) (time.Time, time.Time, error) {
 		err                error
 	)
 
-	startTime, err = time.Parse(layoutTime, start)
+	startTime, err = time.Parse(LayoutTime, start)
 	if err != nil {
 		return startTime, endTime, fmt.Errorf("scheduler: error parsing start time: %w", err)
 	}
 
-	endTime, err = time.Parse(layoutTime, end)
+	endTime, err = time.Parse(LayoutTime, end)
 	if err != nil {
 		return startTime, endTime, fmt.Errorf("scheduler: error parsing end time: %w", err)
 	}

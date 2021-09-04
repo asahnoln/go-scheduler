@@ -14,8 +14,8 @@ func TestCreateSchedule(t *testing.T) {
 	assertSameLength(t, 1, len(s))
 
 	r := s[0]
-	assertSameString(t, "09:00", r.Start(), "want range start time %q, got %q")
-	assertSameString(t, "12:00", r.End(), "want range end time %q, got %q")
+	assertSameString(t, "09:00", r.StartString(), "want range start time %q, got %q")
+	assertSameString(t, "12:00", r.EndString(), "want range end time %q, got %q")
 }
 
 func TestAddMoreRanges(t *testing.T) {
@@ -26,8 +26,8 @@ func TestAddMoreRanges(t *testing.T) {
 	assertSameLength(t, 2, len(s))
 
 	r := s[1]
-	assertSameString(t, "15:00", r.Start(), "want range start time %q, got %q")
-	assertSameString(t, "18:00", r.End(), "want range end time %q, got %q")
+	assertSameString(t, "15:00", r.StartString(), "want range start time %q, got %q")
+	assertSameString(t, "18:00", r.EndString(), "want range end time %q, got %q")
 }
 
 // TODO: Assert Error objects
