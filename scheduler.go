@@ -13,11 +13,12 @@ func NewSchedule() Schedule {
 }
 
 func (s Schedule) AddRange(start, end string) (Schedule, error) {
+	newS := NewSchedule()
 	newRange := Range{start, end}
 	var err error
 
 	if l := len(s); l > 0 {
-		for i, r := range s {
+		for _, r := range s {
 			rStart, err := time.Parse("15:04", r.start)
 			if err != nil {
 				return s, err
@@ -35,20 +36,18 @@ func (s Schedule) AddRange(start, end string) (Schedule, error) {
 				return s, err
 			}
 
-			// TODO: Fix conditions
-			if rEnd.After(newStart) || rEnd.Equal(newStart) {
-				s[i].end = newRange.end
-			} else if rStart.Before(newEnd) || rStart.Equal(newEnd) {
-				s[i].start = newRange.start
-			} else {
-				s = append(s, newRange)
+			if rStart.Before(newStart) && rEnd.Before(newStart) || rStart.After(newEnd) && rEnd.After(newEnd) {
+				newS = append(newS, r)
+			} else if rStart.Before(newStart) && (rEnd.After(newStart) || rEnd.Equal((newStart))) {
+				newRange.start = r.start
+			} else if rEnd.After(newEnd) && (rStart.Before(newEnd) || rStart.Equal(newEnd)) {
+				newRange.end = r.end
 			}
 		}
-	} else {
-		s = append(s, newRange)
 	}
+	newS = append(newS, newRange)
 
-	return s, err
+	return newS, err
 }
 
 func (r Range) Start() string {

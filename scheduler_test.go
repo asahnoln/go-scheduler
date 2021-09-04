@@ -38,6 +38,18 @@ func TestMergeRanges(t *testing.T) {
 		wantTimes  [][2]string
 	}{
 		{
+			"in order, separate times",
+			[][2]string{
+				{"09:00", "12:00"},
+				{"18:00", "20:00"},
+			},
+			2,
+			[][2]string{
+				{"09:00", "12:00"},
+				{"18:00", "20:00"},
+			},
+		},
+		{
 			"added in order, overlapping ending and beginning",
 			[][2]string{
 				{"09:00", "12:00"},
