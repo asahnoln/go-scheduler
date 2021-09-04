@@ -70,12 +70,11 @@ func (s Schedule) merge(r Range) Schedule {
 			case p.Start.Before(r.Start) && p.End.After(r.End):
 				r.Start = p.Start
 				r.End = p.End
-			case p.Start.After(r.Start) && p.End.Before(r.End):
-			case p.Start.Equal(r.Start) && p.End.Equal(r.End):
 			case p.Start.Before(r.Start) && (p.End.After(r.Start) || p.End.Equal((r.Start))):
 				r.Start = p.Start
 			case p.End.After(r.End) && (p.Start.Before(r.End) || p.Start.Equal(r.End)):
 				r.End = p.End
+			case p.Start.After(r.Start) && p.End.Before(r.End) || p.Start.Equal(r.Start) && p.End.Equal(r.End):
 			default:
 				newS = append(newS, p)
 			}
