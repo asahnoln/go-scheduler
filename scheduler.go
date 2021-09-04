@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-const LayoutTime = "15:04"
+// layoutTime is common time format for parsing given range strings to time.Time
+const layoutTime = "15:04"
 
 // Schedule is a slice of ranges
 type Schedule []Range
@@ -16,7 +17,7 @@ func NewSchedule() Schedule {
 	return Schedule{}
 }
 
-// AddRange adds a new Range with given start and end times to the Schedule.
+// Add adds a new Range with given start and end times to the Schedule.
 //
 // Times parsed from strings to time.Time.
 //
@@ -28,39 +29,54 @@ func NewSchedule() Schedule {
 //
 // Schedule Ranges designed to work with clock time during one day,
 // but they potentially might work with longer ranges, taking days, months or years.
-func (s Schedule) AddRange(start, end string) (Schedule, error) {
+func (s Schedule) Add(start, end string) (Schedule, error) {
 	startTime, endTime, err := parseTimes(start, end)
 	if err != nil {
 		return s, err
 	}
 
+	// This kinda overrides above error checking when testing error path.
+	// Potential problem?
 	if !startTime.Before(endTime) {
 		return s, fmt.Errorf("scheduler: want new range start time less than end time, got AddRange(%q, %q)", start, end)
 	}
 
-	newS := s.merge(Range{startTime, endTime})
-	sort.Slice(newS, func(i, j int) bool {
-		return newS[i].start.Before(newS[j].start)
-	})
-
-	return newS, err
+	return s.AddRange(Range{startTime, endTime}), nil
 }
 
-func (s Schedule) merge(newRange Range) Schedule {
+// AddRange adds Range r to Schedule s and merges it if needed
+func (s Schedule) AddRange(r Range) Schedule {
+	s = s.merge(r)
+	sort.Slice(s, func(i, j int) bool {
+		return s[i].start.Before(s[j].start)
+	})
+
+	return s
+}
+
+// AddSchedule merges Schedule s with Schedule c
+func (s Schedule) AddSchedule(c Schedule) Schedule {
+	for _, r := range c {
+		s = s.merge(r)
+	}
+	return s
+}
+
+func (s Schedule) merge(r Range) Schedule {
 	newS := NewSchedule()
 	if l := len(s); l > 0 {
-		for _, r := range s {
+		for _, p := range s {
 			switch {
-			case r.start.Before(newRange.start) && (r.end.After(newRange.start) || r.end.Equal((newRange.start))):
-				newRange.start = r.start
-			case r.end.After(newRange.end) && (r.start.Before(newRange.end) || r.start.Equal(newRange.end)):
-				newRange.end = r.end
+			case p.start.Before(r.start) && (p.end.After(r.start) || p.end.Equal((r.start))):
+				r.start = p.start
+			case p.end.After(r.end) && (p.start.Before(r.end) || p.start.Equal(r.end)):
+				r.end = p.end
 			default:
-				newS = append(newS, r)
+				newS = append(newS, p)
 			}
 		}
 	}
-	newS = append(newS, newRange)
+	newS = append(newS, r)
 	return newS
 }
 
@@ -70,12 +86,12 @@ func parseTimes(start, end string) (time.Time, time.Time, error) {
 		err                error
 	)
 
-	startTime, err = time.Parse(LayoutTime, start)
+	startTime, err = time.Parse(layoutTime, start)
 	if err != nil {
 		return startTime, endTime, fmt.Errorf("scheduler: error parsing start time: %w", err)
 	}
 
-	endTime, err = time.Parse(LayoutTime, end)
+	endTime, err = time.Parse(layoutTime, end)
 	if err != nil {
 		return startTime, endTime, fmt.Errorf("scheduler: error parsing end time: %w", err)
 	}

@@ -98,7 +98,7 @@ func TestMergeRanges(t *testing.T) {
 			s := scheduler.NewSchedule()
 
 			for _, args := range tt.times {
-				s, _ = s.AddRange(args[0], args[1])
+				s, _ = s.Add(args[0], args[1])
 			}
 			t.Logf("times added: %v", tt.times)
 			for _, r := range s {
@@ -116,20 +116,35 @@ func TestMergeRanges(t *testing.T) {
 	}
 }
 
-// TODO: Assert Error objects
-func TestRangeStartLessThanEnd(t *testing.T) {
-	_, err := scheduler.NewSchedule().AddRange("14:00", "09:00")
-	assertError(t, err, "expect error, because given start time is greater than end time, got %v")
+func TestAddScheduleToSchedule(t *testing.T) {
+	s1, _ := scheduler.NewSchedule().Add("09:00", "14:00")
+	s2, _ := scheduler.NewSchedule().Add("18:00", "20:00")
 
-	_, err = scheduler.NewSchedule().AddRange("14:00", "14:00")
-	assertError(t, err, "expect error, because given start time is equal to end time, got %v")
+	sumS := s1.AddSchedule(s2)
+
+	assertSameLength(t, 2, len(sumS))
+	assertSameString(t, "09:00", sumS[0].Start(), "want start range time %q, got %q")
+	assertSameString(t, "14:00", sumS[0].End(), "want end range time %q, got %q")
+	assertSameString(t, "18:00", sumS[1].Start(), "want start range time %q, got %q")
+	assertSameString(t, "20:00", sumS[1].End(), "want end range time %q, got %q")
+}
+
+func TestMergeSchedules(t *testing.T) {
+	s1, _ := scheduler.NewSchedule().Add("10:30", "13:30")
+	s2, _ := scheduler.NewSchedule().Add("11:00", "14:45")
+
+	sumS := s1.AddSchedule(s2)
+
+	assertSameLength(t, 1, len(sumS))
+	assertSameString(t, "10:30", sumS[0].Start(), "want start range time %q, got %q")
+	assertSameString(t, "14:45", sumS[0].End(), "want end range time %q, got %q")
 }
 
 // TODO: Think on optimization
 func BenchmarkMerging(b *testing.B) {
 	s := scheduler.NewSchedule()
 	for i := 0; i < b.N; i++ {
-		s, _ = s.AddRange("09:00", "14:00")
+		s, _ = s.Add("09:00", "14:00")
 	}
 }
 

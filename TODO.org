@@ -4,6 +4,8 @@
 ** [X] Create busy schedule with timings
 ** [X] Merge schedules together
 ** [X] Start time should be less then end time
+** [X] Add Schedule to Schedule
+** [ ] Write README
 ** [ ] Optimize adding a new range
 ** [ ] Add examples
 ** [ ] Add Error objects
