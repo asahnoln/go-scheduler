@@ -2,9 +2,16 @@
 
 * What needs to be done
 ** [X] Create busy schedule with timings
-** [X] Merge schedules together
+** [X] Merge ranges together
 ** [X] Start time should be less then end time
 ** [X] Add Schedule to Schedule
+** [X] Create week schedule
+** [ ] Make sure test assert week merge schedules for days
+** [ ] Create date schedule
+** PROJ CLI Tool
+*** [ ] Add item with week and date schedule
+*** [ ] Item should have schedules for days of week and for specific dates
+*** [ ] Show calendar for asked month and items
 ** [ ] Write README
 ** [ ] Optimize adding a new range
 ** [ ] Add examples

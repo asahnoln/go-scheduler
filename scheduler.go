@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// layoutTime is common time format for parsing given range strings to time.Time
+// LayoutTime is common time format for parsing given range strings to time.Time
 const LayoutTime = "15:04"
 
 // Schedule is a slice of ranges
