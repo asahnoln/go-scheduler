@@ -6,7 +6,7 @@
 ** [X] Start time should be less then end time
 ** [X] Add Schedule to Schedule
 ** [X] Create week schedule
-** [ ] Make sure test assert week merge schedules for days
+** [X] Make sure test assert week merge schedules for days
 ** [ ] Create date schedule
 ** PROJ CLI Tool
 *** [ ] Add item with week and date schedule
