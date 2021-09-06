@@ -23,40 +23,126 @@ func TestCreateWeekSchedule(t *testing.T) {
 	assertSameLength(t, 2, len(d))
 }
 
+// Kinda cumbersome test
 func TestWholeWeek(t *testing.T) {
 	tests := [7]struct {
-		day   time.Weekday
-		times [2]string
+		day       time.Weekday
+		times     [][2]string
+		wantTimes [][2]string
 	}{
 		{time.Monday,
-			[2]string{"07:10", "08:20"}},
+			[][2]string{
+				{"07:05", "08:15"},
+				{"07:30", "09:05"},
+				{"18:20", "19:10"},
+			},
+			[][2]string{
+				{"07:05", "09:05"},
+				{"18:20", "19:10"},
+			}},
 		{time.Tuesday,
-			[2]string{"08:20", "09:30"}},
+			[][2]string{
+				{"08:05", "08:45"},
+				{"08:30", "09:05"},
+				{"18:20", "19:10"},
+			},
+			[][2]string{
+				{"08:05", "09:05"},
+				{"18:20", "19:10"},
+			}},
 		{time.Wednesday,
-			[2]string{"09:30", "10:40"}},
+			[][2]string{
+				{"07:05", "07:15"},
+				{"07:10", "08:05"},
+				{"18:20", "19:10"},
+			},
+			[][2]string{
+				{"07:05", "08:05"},
+				{"18:20", "19:10"},
+			}},
 		{time.Thursday,
-			[2]string{"10:50", "11:00"}},
+			[][2]string{
+				{"06:05", "07:15"},
+				{"06:30", "08:05"},
+				{"18:20", "19:10"},
+			},
+			[][2]string{
+				{"06:05", "08:05"},
+				{"18:20", "19:10"},
+			}},
 		{time.Friday,
-			[2]string{"12:10", "13:20"}},
+			[][2]string{
+				{"08:05", "09:15"},
+				{"08:30", "10:05"},
+				{"18:20", "19:10"},
+			},
+			[][2]string{
+				{"08:05", "10:05"},
+				{"18:20", "19:10"},
+			}},
 		{time.Saturday,
-			[2]string{"14:30", "15:40"}},
+			[][2]string{
+				{"05:05", "08:15"},
+				{"07:30", "09:05"},
+				{"18:20", "19:10"},
+			},
+			[][2]string{
+				{"05:05", "09:05"},
+				{"18:20", "19:10"},
+			},
+		},
 		{time.Sunday,
-			[2]string{"16:50", "17:00"}},
+			[][2]string{
+				{"04:05", "05:15"},
+				{"04:30", "06:05"},
+				{"18:20", "19:10"},
+			},
+			[][2]string{
+				{"04:05", "06:05"},
+				{"18:20", "19:10"},
+			},
+		},
 	}
 
+	// Assert that time is merging
 	w := scheduler.NewWeek()
 	for _, tt := range tests {
-		s, _ := scheduler.NewSchedule().Add(tt.times[0], tt.times[1])
-		w = w.Add(tt.day, s)
+		for _, ts := range tt.times {
+			s, _ := scheduler.NewSchedule().Add(ts[0], ts[1])
+			w = w.Add(tt.day, s)
+		}
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.day.String(), func(t *testing.T) {
 			d := w.Day(tt.day)
 
-			assertSameLength(t, 1, len(d))
-			assertSameString(t, tt.times[0], d[0].StartString(), "want start time %q, got %q")
-			assertSameString(t, tt.times[1], d[0].EndString(), "want end time %q, got %q")
+			assertSameLength(t, len(tt.wantTimes), len(d))
+			for i, want := range tt.wantTimes {
+				assertSameString(t, want[0], d[i].StartString(), "want start time %q, got %q")
+				assertSameString(t, want[1], d[i].EndString(), "want end time %q, got %q")
+			}
 		})
+	}
+}
+
+// Seems like map or switch doesn't make a difference for some reason
+func BenchmarkWeek(b *testing.B) {
+	days := [7]time.Weekday{
+		time.Monday,
+		time.Tuesday,
+		time.Wednesday,
+		time.Thursday,
+		time.Friday,
+		time.Saturday,
+		time.Sunday,
+	}
+	for i := 0; i < b.N; i++ {
+		w := scheduler.NewWeek()
+		for _, d := range days {
+			s, _ := scheduler.NewSchedule().Add("09:00", "10:00")
+			w := w.Add(d, s)
+			w.Day(d)
+		}
 	}
 }
