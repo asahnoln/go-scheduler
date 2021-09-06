@@ -127,6 +127,7 @@ func TestWholeWeek(t *testing.T) {
 }
 
 // Seems like map or switch doesn't make a difference for some reason
+// Slice is kinda faster?
 func BenchmarkWeek(b *testing.B) {
 	days := [7]time.Weekday{
 		time.Monday,

@@ -4,14 +4,12 @@ import "time"
 
 // Week holds schedules for all days in a week
 type Week struct {
-	days map[time.Weekday]Schedule
+	days [7]Schedule
 }
 
 // NewWeek returns new Week
 func NewWeek() Week {
-	return Week{
-		make(map[time.Weekday]Schedule),
-	}
+	return Week{}
 }
 
 // Add adds a Schedule to the Week for a given day
