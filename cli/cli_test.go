@@ -5,15 +5,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/asahnoln/go-scheduler/cmd/cli"
+	"github.com/asahnoln/go-scheduler/cli"
 )
 
-func TestAddItem(t *testing.T) {
+func TestAddDaySchedule(t *testing.T) {
 	in := strings.NewReader("add monday 09:00-12:00")
 
-	cli := cli.NewCLI(in)
+	c := cli.NewCLI(in)
 
-	w, err := cli.Process()
+	w, err := c.Process()
 	if err != nil {
 		t.Fatalf("unexpected error while processing CLI: %v", err)
 	}

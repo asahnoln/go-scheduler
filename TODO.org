@@ -10,6 +10,7 @@
 ** [ ] Create date schedule
 ** PROJ CLI Tool
 *** [ ] Create item for schedule
+*** [X] Add time to a day
 *** [ ] Add week days with schedules to the item
 *** [ ] Add date with schedules to the item
 *** [ ] Show calendar for asked month and items
