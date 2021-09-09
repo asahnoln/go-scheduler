@@ -4,17 +4,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/asahnoln/go-scheduler/cli"
+	"github.com/asahnoln/go-scheduler"
 )
 
 func main() {
 	fmt.Println("Welcome to the Scheduler!")
-	c := cli.NewCLI(os.Stdin)
-	w, err := c.Process()
+	c := scheduler.NewCLI(os.Stdin, os.Stdout)
+	_, err := c.Process()
 
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(w)
 }
