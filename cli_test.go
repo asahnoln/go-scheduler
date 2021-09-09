@@ -101,7 +101,7 @@ func TestCLIWrongCommand(t *testing.T) {
 }
 
 func TestCLIShowData(t *testing.T) {
-	in := strings.NewReader("add apollo monday 09:00-14:00\nadd apollo monday 15:00-18:00\nshow apollo")
+	in := strings.NewReader("add apollo monday 09:00-14:00\nshow apollo")
 	out := bytes.Buffer{}
 
 	c := scheduler.NewCLI(in, &out)
@@ -114,7 +114,7 @@ apollo
 
 Monday
 09:00-14:00
-15:00-18:00
+
 `[1:]
 
 	assertSameString(t, want, out.String(), "want output\n%v\n\ngot\n%v")

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -27,37 +28,33 @@ func NewCLI(r io.Reader, w io.Writer) CLI {
 // Process check given reader, scans the command and create a Week
 func (c CLI) Process() (Items, error) {
 	ws := make(Items)
-	reCommand, err := regexp.Compile(`^(\w+)`)
-	if err != nil {
-		return ws, err
-	}
 
 	// TODO: Check for !ok
 	for c.scanner.Scan() {
-		ms := reCommand.FindSubmatch([]byte(c.scanner.Text()))
-		if len(ms) < 1 {
+		parts := strings.Split(c.scanner.Text(), " ")
+		if len(parts) < 1 {
 			return ws, fmt.Errorf("unknown command verb, got %q", c.scanner.Text())
 		}
 
-		switch string(ms[1]) {
+		switch string(parts[0]) {
 		case "show":
 			return c.show(ws)
 		case "add":
-			re, err := regexp.Compile(`^add\s+(\w+)\s+(\w+)\s+(\d{2}:\d{2})-(\d{2}:\d{2})$`)
-			ms := re.FindSubmatch([]byte(c.scanner.Text()))
-
-			if len(ms) < 4 {
-				return ws, fmt.Errorf("unknown command string, got %q", c.scanner.Text())
+			parts := parts[1:]
+			if len(parts) < 3 {
+				return ws, fmt.Errorf("not enough params, got %q", c.scanner.Text())
 			}
 
-			s, err := NewSchedule().Add(string(ms[3]), string(ms[4]))
+			s := NewSchedule()
+			r := strings.Split(parts[2], "-")
+			s, err := s.Add(r[0], r[1])
 			if err != nil {
 				return ws, err
 			}
 
-			person := string(ms[1])
+			person := string(parts[0])
 			w := ws[person]
-			d := parseDay(string(ms[2]))
+			d := parseDay(string(parts[1]))
 			ws[person] = w.Add(d, s)
 		default:
 			return ws, fmt.Errorf("unknown command string, got %q", c.scanner.Text())
@@ -89,10 +86,10 @@ func (c CLI) show(ws Items) (Items, error) {
 		}
 
 		fmt.Fprintf(c.out, "%s\n", time.Weekday(d))
-
 		for _, r := range s {
 			fmt.Fprintf(c.out, "%v-%v\n", r.StartString(), r.EndString())
 		}
+		fmt.Fprintf(c.out, "\n")
 	}
 
 	return ws, nil
