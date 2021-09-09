@@ -16,6 +16,16 @@ type CLI struct {
 	out     io.Writer
 }
 
+var days = [7]time.Weekday{
+	time.Monday,
+	time.Tuesday,
+	time.Wednesday,
+	time.Thursday,
+	time.Friday,
+	time.Saturday,
+	time.Sunday,
+}
+
 // NewCLI creates a new CLI for given reader
 func NewCLI(r io.Reader, w io.Writer) CLI {
 	return CLI{
@@ -69,10 +79,20 @@ func (c CLI) Process() error {
 }
 
 func (c CLI) show(ws items) {
-	args := strings.Split(c.scanner.Text(), " ")
-	fmt.Fprintf(c.out, "%s\n\n", args[1])
+	args := strings.Split(c.scanner.Text(), " ")[1:]
+	fmt.Fprintf(c.out, "%s\n\n", strings.Join(args, " "))
 
-	for d, s := range ws[args[1]].days {
+	w := NewWeek()
+	for _, d := range days {
+		s := NewSchedule()
+		for _, a := range args {
+			s = s.AddSchedule(ws[a].Day(d))
+		}
+		w = w.Add(d, s)
+	}
+
+	for _, d := range days {
+		s := w.Day(d)
 		if len(s) == 0 {
 			continue
 		}
