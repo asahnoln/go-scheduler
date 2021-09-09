@@ -21,7 +21,7 @@ show apollo
 
 	c := scheduler.NewCLI(in, &out)
 
-	_, err := c.Process()
+	err := c.Process()
 	assertNoError(t, err, "unexpected error while processing CLI: %v")
 
 	want := `
@@ -39,29 +39,29 @@ Tuesday
 	assertSameString(t, want, out.String(), "want output\n%v\n\ngot\n%v")
 }
 
-// TODO: Change testing to output
 func TestCLIAddItems(t *testing.T) {
-	in := strings.NewReader("add apollo monday 09:00-12:00\nadd arthur monday 14:00-15:00")
+	names := []string{
+		"arthur", "apollo",
+	}
 
-	c := scheduler.NewCLI(in, nil)
-	ws, err := c.Process()
-	assertNoError(t, err, "unexpected error while processing CLI: %v")
+	for _, n := range names {
+		t.Run("get "+n+" schedule", func(t *testing.T) {
+			in := strings.NewReader("add " + n + " thursday 14:25-15:15\nshow " + n)
+			out := &bytes.Buffer{}
 
-	t.Run("get arthur schedule", func(t *testing.T) {
-		w := ws.Item("arthur")
-		s := w.Day(time.Monday)
+			c := scheduler.NewCLI(in, out)
+			err := c.Process()
+			assertNoError(t, err, "unexpected error while processing CLI: %v")
 
-		assertSameLength(t, 1, len(s))
-		assertSameString(t, "14:00", s[0].StartString(), "want start time %q, got %q")
-	})
+			want := n + `
 
-	t.Run("get apollo schedule", func(t *testing.T) {
-		w := ws.Item("apollo")
-		s := w.Day(time.Monday)
+Thursday
+14:25-15:15
 
-		assertSameLength(t, 1, len(s))
-		assertSameString(t, "09:00", s[0].StartString(), "want start time %q, got %q")
-	})
+`
+			assertSameString(t, want, out.String(), "want output\n%v\ngot\n%v")
+		})
+	}
 }
 
 func TestCliWholeWeek(t *testing.T) {
@@ -80,7 +80,7 @@ func TestCliWholeWeek(t *testing.T) {
 			in := strings.NewReader(fmt.Sprintf("add apollo %s 09:15-12:00\nshow apollo", d))
 			out := bytes.Buffer{}
 			c := scheduler.NewCLI(in, &out)
-			_, err := c.Process()
+			err := c.Process()
 			assertNoError(t, err, "unexpected error while processing CLI: %v")
 
 			want := fmt.Sprintf(`
@@ -101,6 +101,6 @@ func TestCLIWrongCommand(t *testing.T) {
 
 	c := scheduler.NewCLI(in, nil)
 
-	_, err := c.Process()
+	err := c.Process()
 	assertError(t, err, "want CLI error, because wrong command, got: %v")
 }
