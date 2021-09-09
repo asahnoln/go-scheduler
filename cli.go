@@ -46,10 +46,13 @@ func (c CLI) Process() (Items, error) {
 			}
 
 			s := NewSchedule()
-			r := strings.Split(parts[2], "-")
-			s, err := s.Add(r[0], r[1])
-			if err != nil {
-				return ws, err
+			var err error
+			for _, timeRange := range parts[2:] {
+				r := strings.Split(timeRange, "-")
+				s, err = s.Add(r[0], r[1])
+				if err != nil {
+					return ws, err
+				}
 			}
 
 			person := string(parts[0])
