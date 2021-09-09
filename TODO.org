@@ -15,6 +15,7 @@
 *** [X] Show weeks with schedules (show item)
 *** [X] Simplify testing (use output instead of code)
 *** [X] Show several people at once
+*** [ ] Save data in memory
 *** [ ] Add date with schedules to the item
 *** [ ] Show calendar for asked month and items
 ** [ ] Write README

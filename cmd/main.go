@@ -10,9 +10,11 @@ import (
 func main() {
 	fmt.Println("Welcome to the Scheduler!")
 	c := scheduler.NewCLI(os.Stdin, os.Stdout)
-	_, err := c.Process()
+	for {
+		err := c.Process()
 
-	if err != nil {
-		panic(err)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
