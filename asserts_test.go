@@ -1,6 +1,10 @@
 package scheduler_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/asahnoln/go-scheduler"
+)
 
 func assertError(t testing.TB, err error, message string) {
 	t.Helper()
@@ -31,5 +35,13 @@ func assertSameString(t testing.TB, want, got, message string) {
 
 	if want != got {
 		t.Errorf(message, want, got)
+	}
+}
+
+func assertSameRange(t testing.TB, want, got scheduler.Range) {
+	t.Helper()
+
+	if want != got {
+		t.Errorf("want range %v-%v, got %v-%v", want.StartString(), want.EndString(), got.StartString(), got.EndString())
 	}
 }

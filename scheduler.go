@@ -1,9 +1,7 @@
 package scheduler
 
 import (
-	"fmt"
 	"sort"
-	"time"
 )
 
 // LayoutTime is common time format for parsing given range strings to time.Time
@@ -30,18 +28,12 @@ func NewSchedule() Schedule {
 // Schedule Ranges designed to work with clock time during one day,
 // but they potentially might work with longer ranges, taking days, months or years.
 func (s Schedule) Add(start, end string) (Schedule, error) {
-	startTime, endTime, err := parseTimes(start, end)
+	r, err := NewRangeFromStrings(start, end)
 	if err != nil {
 		return s, err
 	}
 
-	// This kinda overrides above error checking when testing error path.
-	// Potential problem?
-	if !startTime.Before(endTime) {
-		return s, fmt.Errorf("scheduler: want new range start time less than end time, got AddRange(%q, %q)", start, end)
-	}
-
-	return s.AddRange(Range{startTime, endTime}), nil
+	return s.AddRange(r), nil
 }
 
 // AddRange adds Range r to Schedule s and merges it if needed
@@ -82,23 +74,4 @@ func (s Schedule) merge(r Range) Schedule {
 	}
 	newS = append(newS, r)
 	return newS
-}
-
-func parseTimes(start, end string) (time.Time, time.Time, error) {
-	var (
-		startTime, endTime time.Time
-		err                error
-	)
-
-	startTime, err = time.Parse(LayoutTime, start)
-	if err != nil {
-		return startTime, endTime, fmt.Errorf("scheduler: error parsing start time: %w", err)
-	}
-
-	endTime, err = time.Parse(LayoutTime, end)
-	if err != nil {
-		return startTime, endTime, fmt.Errorf("scheduler: error parsing end time: %w", err)
-	}
-
-	return startTime, endTime, nil
 }

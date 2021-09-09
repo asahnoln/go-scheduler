@@ -6,16 +6,23 @@ import (
 	"github.com/asahnoln/go-scheduler"
 )
 
-func TestCreateSchedule(t *testing.T) {
-	s := scheduler.NewSchedule()
-	s, err := s.Add("09:00", "12:00")
-	assertNoError(t, err, "unexpected error while adding range: %v")
+func TestNewRange(t *testing.T) {
+	got, err := scheduler.NewRangeFromStrings("09:00", "12:00")
+	assertNoError(t, err, "unexpected error while creating range: %v")
 
+	assertSameString(t, "09:00", got.StartString(), "want range start time %q, got %q")
+	assertSameString(t, "12:00", got.EndString(), "want range end time %q, got %q")
+}
+
+func TestCreateSchedule(t *testing.T) {
+	want, err := scheduler.NewRangeFromStrings("09:00", "12:00")
+	assertNoError(t, err, "unexpected error while creating range: %v")
+
+	s := scheduler.NewSchedule().AddRange(want)
 	assertSameLength(t, 1, len(s))
 
-	r := s[0]
-	assertSameString(t, "09:00", r.StartString(), "want range start time %q, got %q")
-	assertSameString(t, "12:00", r.EndString(), "want range end time %q, got %q")
+	got := s[0]
+	assertSameRange(t, want, got)
 }
 
 func TestAddMoreRanges(t *testing.T) {
