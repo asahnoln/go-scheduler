@@ -10,6 +10,7 @@ type Range struct {
 	Start, End time.Time
 }
 
+// NewRangeFromStrings creates Range with given string times
 func NewRangeFromStrings(start, end string) (Range, error) {
 	startTime, endTime, err := parseTimes(start, end)
 

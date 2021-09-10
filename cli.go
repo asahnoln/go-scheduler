@@ -34,48 +34,48 @@ func NewCLI(r io.Reader, w io.Writer) CLI {
 	}
 }
 
-// Process check given reader, scans the command and create a Week
-func (c CLI) Process() error {
+// MainLoop check given reader, scans the command and create a Week
+func (c CLI) MainLoop() error {
 	ws := make(items)
 
-	// TODO: Check for !ok
-	for c.scanner.Scan() {
-		words := strings.Split(c.scanner.Text(), " ")
-		if len(words) < 1 {
-			return fmt.Errorf("unknown command verb, got %q", c.scanner.Text())
-		}
-
-		switch words[0] {
-		case "show":
-			c.show(ws)
-			return nil
-		case "add":
-			args := words[1:]
-			if len(args) < 3 {
-				return fmt.Errorf("not enough params, got %q", c.scanner.Text())
+	for {
+		for c.scanner.Scan() {
+			words := strings.Split(c.scanner.Text(), " ")
+			if len(words) < 1 {
+				return fmt.Errorf("unknown command verb, got %q", c.scanner.Text())
 			}
 
-			s := NewSchedule()
-			var err error
-			for _, timeRange := range args[2:] {
-				r := strings.Split(timeRange, "-")
-				s, err = s.Add(r[0], r[1])
-				if err != nil {
-					return err
+			switch words[0] {
+			case "show":
+				c.show(ws)
+			case "add":
+				args := words[1:]
+				if len(args) < 3 {
+					return fmt.Errorf("not enough params, got %q", c.scanner.Text())
 				}
+
+				s := NewSchedule()
+				var err error
+				for _, timeRange := range args[2:] {
+					r := strings.Split(timeRange, "-")
+					s, err = s.Add(r[0], r[1])
+					if err != nil {
+						return err
+					}
+				}
+
+				person := args[0]
+				w := ws[person]
+				d := parseDay(args[1])
+				ws[person] = w.Add(d, s)
+			case "quit":
+				return fmt.Errorf("Quitted")
+			default:
+				fmt.Fprintf(c.out, "unknown command string %q\n", c.scanner.Text())
 			}
 
-			person := args[0]
-			w := ws[person]
-			d := parseDay(args[1])
-			ws[person] = w.Add(d, s)
-		default:
-			return fmt.Errorf("unknown command string, got %q", c.scanner.Text())
 		}
-
 	}
-
-	return nil
 }
 
 func (c CLI) show(ws items) {
