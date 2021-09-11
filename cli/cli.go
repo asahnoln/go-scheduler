@@ -1,4 +1,4 @@
-package scheduler
+package cli
 
 import (
 	"bufio"
@@ -6,9 +6,11 @@ import (
 	"io"
 	"strings"
 	"time"
+
+	"github.com/asahnoln/go-scheduler"
 )
 
-type items map[string]Week
+type items map[string]scheduler.Week
 
 // CLI holds scanner to scan user stdin
 type CLI struct {
@@ -34,7 +36,7 @@ func NewCLI(r io.Reader, w io.Writer) CLI {
 	}
 }
 
-// MainLoop check given reader, scans the command and create a Week
+// MainLoop check given reader, scans the command and create a scheduler.Week
 func (c CLI) MainLoop() error {
 	ws := make(items)
 
@@ -54,7 +56,7 @@ func (c CLI) MainLoop() error {
 					return fmt.Errorf("not enough params, got %q", c.scanner.Text())
 				}
 
-				s := NewSchedule()
+				s := scheduler.NewSchedule()
 				var err error
 				for _, timeRange := range args[2:] {
 					r := strings.Split(timeRange, "-")
@@ -82,9 +84,9 @@ func (c CLI) show(ws items) {
 	args := strings.Split(c.scanner.Text(), " ")[1:]
 	fmt.Fprintf(c.out, "%s\n\n", strings.Join(args, " "))
 
-	w := NewWeek()
+	w := scheduler.NewWeek()
 	for _, d := range days {
-		s := NewSchedule()
+		s := scheduler.NewSchedule()
 		for _, a := range args {
 			s = s.AddSchedule(ws[a].Day(d))
 		}

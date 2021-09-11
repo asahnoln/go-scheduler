@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/asahnoln/go-scheduler"
+	"github.com/asahnoln/go-scheduler/test"
 )
 
 func TestCreateWeekSchedule(t *testing.T) {
@@ -14,13 +15,13 @@ func TestCreateWeekSchedule(t *testing.T) {
 	w = w.Add(time.Monday, s)
 	d := w.Day(time.Monday)
 
-	assertSameLength(t, 1, len(d))
+	test.AssertSameLength(t, 1, len(d))
 
 	s, _ = scheduler.NewSchedule().Add("15:00", "18:00")
 	w = w.Add(time.Monday, s)
 	d = w.Day(time.Monday)
 
-	assertSameLength(t, 2, len(d))
+	test.AssertSameLength(t, 2, len(d))
 }
 
 // Kinda cumbersome test
@@ -117,10 +118,10 @@ func TestWholeWeek(t *testing.T) {
 		t.Run(tt.day.String(), func(t *testing.T) {
 			d := w.Day(tt.day)
 
-			assertSameLength(t, len(tt.wantTimes), len(d))
+			test.AssertSameLength(t, len(tt.wantTimes), len(d))
 			for i, want := range tt.wantTimes {
-				assertSameString(t, want[0], d[i].StartString(), "want start time %q, got %q")
-				assertSameString(t, want[1], d[i].EndString(), "want end time %q, got %q")
+				test.AssertSameString(t, want[0], d[i].StartString(), "want start time %q, got %q")
+				test.AssertSameString(t, want[1], d[i].EndString(), "want end time %q, got %q")
 			}
 		})
 	}

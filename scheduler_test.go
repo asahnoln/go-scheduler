@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/asahnoln/go-scheduler"
+	"github.com/asahnoln/go-scheduler/test"
 )
 
 func TestMergeRanges(t *testing.T) {
@@ -116,12 +117,12 @@ func TestMergeRanges(t *testing.T) {
 				t.Logf("times in Schedule: %v - %v", r.StartString(), r.EndString())
 			}
 
-			assertSameLength(t, len(tt.wantTimes), len(s))
+			test.AssertSameLength(t, len(tt.wantTimes), len(s))
 
 			for i, ts := range tt.wantTimes {
 				r := s[i]
-				assertSameString(t, ts[0], r.StartString(), "want range start %q, got %q")
-				assertSameString(t, ts[1], r.EndString(), "want range end %q, got %q")
+				test.AssertSameString(t, ts[0], r.StartString(), "want range start %q, got %q")
+				test.AssertSameString(t, ts[1], r.EndString(), "want range end %q, got %q")
 			}
 		})
 	}
@@ -133,11 +134,11 @@ func TestAddScheduleToSchedule(t *testing.T) {
 
 	sumS := s1.AddSchedule(s2)
 
-	assertSameLength(t, 2, len(sumS))
-	assertSameString(t, "09:00", sumS[0].StartString(), "want start range time %q, got %q")
-	assertSameString(t, "14:00", sumS[0].EndString(), "want end range time %q, got %q")
-	assertSameString(t, "18:00", sumS[1].StartString(), "want start range time %q, got %q")
-	assertSameString(t, "20:00", sumS[1].EndString(), "want end range time %q, got %q")
+	test.AssertSameLength(t, 2, len(sumS))
+	test.AssertSameString(t, "09:00", sumS[0].StartString(), "want start range time %q, got %q")
+	test.AssertSameString(t, "14:00", sumS[0].EndString(), "want end range time %q, got %q")
+	test.AssertSameString(t, "18:00", sumS[1].StartString(), "want start range time %q, got %q")
+	test.AssertSameString(t, "20:00", sumS[1].EndString(), "want end range time %q, got %q")
 }
 
 func TestMergeSchedules(t *testing.T) {
@@ -146,9 +147,9 @@ func TestMergeSchedules(t *testing.T) {
 
 	sumS := s1.AddSchedule(s2)
 
-	assertSameLength(t, 1, len(sumS))
-	assertSameString(t, "10:30", sumS[0].StartString(), "want start range time %q, got %q")
-	assertSameString(t, "14:45", sumS[0].EndString(), "want end range time %q, got %q")
+	test.AssertSameLength(t, 1, len(sumS))
+	test.AssertSameString(t, "10:30", sumS[0].StartString(), "want start range time %q, got %q")
+	test.AssertSameString(t, "14:45", sumS[0].EndString(), "want end range time %q, got %q")
 }
 
 // TODO: Think on optimization

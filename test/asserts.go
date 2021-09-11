@@ -1,4 +1,4 @@
-package scheduler_test
+package test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/asahnoln/go-scheduler"
 )
 
-func assertError(t testing.TB, err error, message string) {
+func AssertError(t testing.TB, err error, message string) {
 	t.Helper()
 
 	if err == nil {
@@ -14,7 +14,7 @@ func assertError(t testing.TB, err error, message string) {
 	}
 }
 
-func assertNoError(t testing.TB, err error, message string) {
+func AssertNoError(t testing.TB, err error, message string) {
 	t.Helper()
 
 	if err != nil {
@@ -22,7 +22,7 @@ func assertNoError(t testing.TB, err error, message string) {
 	}
 }
 
-func assertSameLength(t testing.TB, want, got int) {
+func AssertSameLength(t testing.TB, want, got int) {
 	t.Helper()
 
 	if want != got {
@@ -30,7 +30,7 @@ func assertSameLength(t testing.TB, want, got int) {
 	}
 }
 
-func assertSameString(t testing.TB, want, got, message string) {
+func AssertSameString(t testing.TB, want, got, message string) {
 	t.Helper()
 
 	if want != got {
@@ -38,7 +38,7 @@ func assertSameString(t testing.TB, want, got, message string) {
 	}
 }
 
-func assertSameRange(t testing.TB, want, got scheduler.Range) {
+func AssertSameRange(t testing.TB, want, got scheduler.Range) {
 	t.Helper()
 
 	if want != got {

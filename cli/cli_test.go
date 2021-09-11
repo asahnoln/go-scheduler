@@ -1,4 +1,4 @@
-package scheduler_test
+package cli_test
 
 import (
 	"bytes"
@@ -7,7 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/asahnoln/go-scheduler"
+	"github.com/asahnoln/go-scheduler/cli"
+	"github.com/asahnoln/go-scheduler/test"
 )
 
 func TestCLIShowData(t *testing.T) {
@@ -20,7 +21,7 @@ quit
 `[1:])
 	out := bytes.Buffer{}
 
-	c := scheduler.NewCLI(in, &out)
+	c := cli.NewCLI(in, &out)
 
 	_ = c.MainLoop()
 	// assertNoError(t, err, "unexpected error while processing CLI: %v")
@@ -37,7 +38,7 @@ Tuesday
 
 `[1:]
 
-	assertSameString(t, want, out.String(), "want output\n%v\n\ngot\n%v")
+	test.AssertSameString(t, want, out.String(), "want output\n%v\n\ngot\n%v")
 }
 
 func TestCLIAddDifferentItems(t *testing.T) {
@@ -50,7 +51,7 @@ func TestCLIAddDifferentItems(t *testing.T) {
 			in := strings.NewReader("add " + n + " thursday 14:25-15:15\nshow " + n + "\nquit")
 			out := &bytes.Buffer{}
 
-			c := scheduler.NewCLI(in, out)
+			c := cli.NewCLI(in, out)
 			_ = c.MainLoop()
 			// assertNoError(t, err, "unexpected error while processing CLI: %v")
 
@@ -60,7 +61,7 @@ Thursday
 14:25-15:15
 
 `
-			assertSameString(t, want, out.String(), "want output\n%v\ngot\n%v")
+			test.AssertSameString(t, want, out.String(), "want output\n%v\ngot\n%v")
 		})
 	}
 }
@@ -80,7 +81,7 @@ func TestCliWholeWeek(t *testing.T) {
 		t.Run(d, func(t *testing.T) {
 			in := strings.NewReader(fmt.Sprintf("add apollo %s 09:15-12:00\nshow apollo\nquit", d))
 			out := bytes.Buffer{}
-			c := scheduler.NewCLI(in, &out)
+			c := cli.NewCLI(in, &out)
 			_ = c.MainLoop()
 			// assertNoError(t, err, "unexpected error while processing CLI: %v")
 
@@ -92,7 +93,7 @@ apollo
 
 `[1:], i)
 
-			assertSameString(t, want, out.String(), "want output\n%v\ngot\n%v")
+			test.AssertSameString(t, want, out.String(), "want output\n%v\ngot\n%v")
 		})
 	}
 }
@@ -101,10 +102,10 @@ func TestCLIWrongCommand(t *testing.T) {
 	in := strings.NewReader("this is wrong\nquit")
 	out := &bytes.Buffer{}
 
-	c := scheduler.NewCLI(in, out)
+	c := cli.NewCLI(in, out)
 
 	_ = c.MainLoop()
-	assertSameString(t, "unknown command string \"this is wrong\"\n", out.String(), "want CLI error %q, got %q")
+	test.AssertSameString(t, "unknown command string \"this is wrong\"\n", out.String(), "want CLI error %q, got %q")
 }
 
 func TestCLIShowSeveralPeople(t *testing.T) {
@@ -118,7 +119,7 @@ quit
 `[1:])
 	out := bytes.Buffer{}
 
-	c := scheduler.NewCLI(in, &out)
+	c := cli.NewCLI(in, &out)
 
 	_ = c.MainLoop()
 	// assertNoError(t, err, "unexpected error while processing CLI: %v")
@@ -137,7 +138,7 @@ Friday
 
 `[1:]
 
-	assertSameString(t, want, out.String(), "want output\n%v\n\ngot\n%v")
+	test.AssertSameString(t, want, out.String(), "want output\n%v\n\ngot\n%v")
 }
 
 func TestCLIQuitOnlyOnCommand(t *testing.T) {
@@ -147,7 +148,7 @@ func TestCLIQuitOnlyOnCommand(t *testing.T) {
 		t.Run(cmd+" should run", func(t *testing.T) {
 			in := strings.NewReader(cmd)
 			out := &bytes.Buffer{}
-			c := scheduler.NewCLI(in, out)
+			c := cli.NewCLI(in, out)
 			quit := make(chan error)
 
 			go func() {
@@ -166,7 +167,7 @@ func TestCLIQuitOnlyOnCommand(t *testing.T) {
 func TestCLIQuitOnCommand(t *testing.T) {
 	in := strings.NewReader("quit")
 	out := &bytes.Buffer{}
-	c := scheduler.NewCLI(in, out)
+	c := cli.NewCLI(in, out)
 	quit := make(chan error)
 
 	go func() {
