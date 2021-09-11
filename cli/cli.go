@@ -71,7 +71,7 @@ func (c CLI) MainLoop() error {
 				d := parseDay(args[1])
 				ws[person] = w.Add(d, s)
 			case "quit":
-				return fmt.Errorf("Quitted")
+				return nil
 			default:
 				fmt.Fprintf(c.out, "unknown command string %q\n", c.scanner.Text())
 			}
