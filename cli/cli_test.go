@@ -56,8 +56,8 @@ func TestCLIWrongCommand(t *testing.T) {
 
 func TestCLIShowSeveralPeople(t *testing.T) {
 	in := strings.NewReader(`
-add apollo monday 09:00-14:00
-add arthur monday 10:00-15:00
+add apollo monday 09:00-14:00 16:00-18:00
+add arthur monday 10:00-16:00
 add apollo tuesday 12:00-13:00
 add arthur friday 18:45-19:45
 show apollo arthur
@@ -74,7 +74,7 @@ quit
 apollo arthur
 
 Monday
-09:00-15:00
+09:00-18:00
 
 Tuesday
 12:00-13:00
@@ -84,7 +84,7 @@ Friday
 
 `[1:]
 
-	test.AssertSameString(t, want, out.String(), "want output\n%v\n\ngot\n%v")
+	test.AssertSameString(t, want, out.String(), "want output\n%vgot\n%v")
 }
 
 func TestCLIQuitOnlyOnCommand(t *testing.T) {
