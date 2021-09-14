@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -10,12 +11,13 @@ import (
 	"github.com/asahnoln/go-scheduler"
 )
 
-type items map[string]scheduler.Week
+type Items map[string]scheduler.Week
 
 // CLI holds scanner to scan user stdin
 type CLI struct {
 	scanner *bufio.Scanner
 	out     io.Writer
+	db      io.Writer
 }
 
 var days = [7]time.Weekday{
@@ -28,17 +30,23 @@ var days = [7]time.Weekday{
 	time.Sunday,
 }
 
+var ws = make(Items)
+
 // NewCLI creates a new CLI for given reader
 func NewCLI(r io.Reader, w io.Writer) CLI {
 	return CLI{
-		bufio.NewScanner(r),
-		w,
+		scanner: bufio.NewScanner(r),
+		out:     w,
 	}
+}
+
+func (c *CLI) DB(f io.Writer) {
+	c.db = f
 }
 
 // MainLoop check given reader, scans the command and create a scheduler.Week
 func (c CLI) MainLoop() error {
-	ws := make(items)
+	ws = make(Items)
 
 	for {
 		for c.scanner.Scan() {
@@ -48,6 +56,8 @@ func (c CLI) MainLoop() error {
 			}
 
 			switch words[0] {
+			case "save":
+				c.save(ws)
 			case "show":
 				c.show(ws)
 			case "add":
@@ -80,7 +90,15 @@ func (c CLI) MainLoop() error {
 	}
 }
 
-func (c CLI) show(ws items) {
+func LastItems() Items {
+	return ws
+}
+
+func (c CLI) save(ws Items) {
+	json.NewEncoder(c.db).Encode(ws)
+}
+
+func (c CLI) show(ws Items) {
 	args := strings.Split(c.scanner.Text(), " ")[1:]
 	fmt.Fprintf(c.out, "%s\n\n", strings.Join(args, " "))
 

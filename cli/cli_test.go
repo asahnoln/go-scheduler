@@ -2,7 +2,10 @@ package cli_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -124,5 +127,44 @@ func TestCLIQuitOnCommand(t *testing.T) {
 	case <-time.After(1 * time.Millisecond):
 		t.Errorf("want quit loop, got loop continuation on \"quit\" command")
 	case <-finished:
+	}
+}
+
+// func TestReadData(t *testing.T) {
+// 	file, err := os.CreateTemp("", "db")
+// 	test.AssertError(t, err, "error while creating temp file: %v")
+
+// 	file.Write([]byte(`[]`)
+// }
+
+func TestSaveData(t *testing.T) {
+	in := strings.NewReader(`
+add apollo monday 09:00-14:00 16:00-18:00
+add apollo tuesday 12:00-13:00
+add arthur friday 18:45-19:45
+save
+quit
+`[1:])
+	out := &bytes.Buffer{}
+	file, err := os.CreateTemp("", "db")
+	test.AssertNoError(t, err, "error while creating temp file: %v")
+	defer file.Close()
+	defer os.Remove(file.Name())
+
+	c := cli.NewCLI(in, out)
+	c.DB(file)
+
+	err = c.MainLoop()
+	test.AssertNoError(t, err, "unexpected error while processing CLI: %v")
+
+	file.Seek(0, 0)
+
+	var got cli.Items
+	json.NewDecoder(file).Decode(&got)
+
+	want := cli.LastItems()
+
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("want saved items from CLI %v, got %v", want, got)
 	}
 }
