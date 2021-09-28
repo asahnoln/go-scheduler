@@ -168,3 +168,40 @@ quit
 		t.Errorf("want saved items from CLI %v, got %v", want, got)
 	}
 }
+
+func TestLoadData(t *testing.T) {
+	// TODO: Refactor duplication
+	in := strings.NewReader(`
+add apollo monday 09:00-14:00 16:00-18:00
+add apollo tuesday 12:00-13:00
+add arthur friday 18:45-19:45
+save
+quit
+`[1:])
+	out := &bytes.Buffer{}
+	file, _ := os.CreateTemp("", "db")
+	defer file.Close()
+	defer os.Remove(file.Name())
+
+	c := cli.NewCLI(in, out)
+	c.DB(file)
+
+	_ = c.MainLoop()
+
+	want := cli.LastItems()
+
+	// Testing loading
+	in = strings.NewReader(`
+quit
+`[1:])
+	c = cli.NewCLI(in, out)
+	c.DB(file)
+	err := c.MainLoop()
+	test.AssertNoError(t, err, "unexpected error while processing CLI: %v")
+
+	got := cli.LastItems()
+
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("want saved items from CLI %v, got %v", want, got)
+	}
+}

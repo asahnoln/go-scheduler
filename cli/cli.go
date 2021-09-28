@@ -17,7 +17,7 @@ type Items map[string]scheduler.Week
 type CLI struct {
 	scanner *bufio.Scanner
 	out     io.Writer
-	db      io.Writer
+	db      io.ReadWriteSeeker
 }
 
 var days = [7]time.Weekday{
@@ -40,13 +40,13 @@ func NewCLI(r io.Reader, w io.Writer) CLI {
 	}
 }
 
-func (c *CLI) DB(f io.Writer) {
+func (c *CLI) DB(f io.ReadWriteSeeker) {
 	c.db = f
 }
 
 // MainLoop check given reader, scans the command and create a scheduler.Week
 func (c CLI) MainLoop() error {
-	ws = make(Items)
+	ws = c.load()
 
 	for {
 		for c.scanner.Scan() {
@@ -91,6 +91,16 @@ func (c CLI) MainLoop() error {
 }
 
 func LastItems() Items {
+	return ws
+}
+
+func (c CLI) load() Items {
+	ws := make(Items)
+	if c.db != nil {
+		c.db.Seek(0, 0)
+		_ = json.NewDecoder(c.db).Decode(&ws)
+	}
+
 	return ws
 }
 
